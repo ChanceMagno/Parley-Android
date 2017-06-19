@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "914782797177",
+    "firebase_url": "https://parley-ca23c.firebaseio.com",
+    "project_id": "parley-ca23c",
+    "storage_bucket": "parley-ca23c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:914782797177:android:7059c4c9487bc4b8",
+        "android_client_info": {
+          "package_name": "com.chancemagno.parley"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "914782797177-0ebj3u8irrd6o20svi3r2rv2g5jqdth0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.chancemagno.parley",
+            "certificate_hash": "b3b63510b452c752190daaf8979b67d3b14c6549"
+          }
+        },
+        {
+          "client_id": "914782797177-0qoegdsds9ua33map72ar36nk518ohk3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDO3aMXurguT2t9mKsPxoE223PF2bxEolM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "914782797177-0qoegdsds9ua33map72ar36nk518ohk3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
