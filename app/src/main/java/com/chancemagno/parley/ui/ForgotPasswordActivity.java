@@ -1,6 +1,7 @@
 package com.chancemagno.parley.ui;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -59,7 +60,24 @@ public class ForgotPasswordActivity extends AppCompatActivity implements View.On
                     if(task.isSuccessful()){
                         mAuthProgressDialog.dismiss();
                         Toast.makeText(ForgotPasswordActivity.this, "We have sent you instructions to reset your password!", Toast.LENGTH_SHORT).show();
-                    }else {
+
+                        final Intent intent = new Intent(ForgotPasswordActivity.this, LoginActivity.class);
+
+                        Thread thread = new Thread(){
+                            @Override
+                            public void run() {
+                                try {
+                                    Thread.sleep(3500);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                    startActivity(intent);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        };
+
+                        thread.start();
+                } else {
                         mAuthProgressDialog.dismiss();
                         Toast.makeText(ForgotPasswordActivity.this, "Failed to send reset email!", Toast.LENGTH_SHORT).show();
                     }
