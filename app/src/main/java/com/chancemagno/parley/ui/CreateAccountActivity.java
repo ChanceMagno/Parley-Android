@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
@@ -18,6 +19,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -45,7 +47,7 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
         ButterKnife.bind(this);
 
         mAuth = FirebaseAuth.getInstance();
-
+        String mName;
         mLoginTextView.setOnClickListener(this);
         mCreateUserButton.setOnClickListener(this);
 
@@ -88,6 +90,7 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         mAuthProgressDialog.dismiss();
                         if(task.isSuccessful()){
+                            updateProfile();
                             sendVerificationEmail();
                         } else {
                             Toast.makeText(CreateAccountActivity.this, "authentication failed", Toast.LENGTH_LONG).show();
@@ -112,6 +115,12 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
         });
     }
 
+    public void updateProfile(){
+        FirebaseUser user = mAuth.getCurrentUser();
+        UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder().setDisplayName(mName).build();
+        user.updateProfile(profileUpdate);
+    }
+
 
     private void createAuthStateListener(){
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -119,6 +128,7 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 final FirebaseUser user = firebaseAuth.getCurrentUser();
                 if(user != null) {
+                    updateProfile();
                     Intent intent = new Intent(CreateAccountActivity.this, LoginActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
