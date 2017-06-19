@@ -9,12 +9,12 @@ import android.view.ViewGroup;
 
 import com.chancemagno.parley.R;
 
-public class Fragment1 extends Fragment {
+public class FragmentMain extends Fragment {
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.fragment1, container, false);
+        final View view = inflater.inflate(R.layout.fragment_main, container, false);
 
         return view;
     }

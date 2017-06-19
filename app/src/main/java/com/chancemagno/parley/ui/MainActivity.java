@@ -7,7 +7,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import com.chancemagno.parley.R;
 import com.chancemagno.parley.adapters.SectionsPageAdapter;
-import com.chancemagno.parley.fragments.Fragment1;
+import com.chancemagno.parley.fragments.FragmentMain;
 import com.chancemagno.parley.fragments.Fragment3;
 
 public class MainActivity extends AppCompatActivity {
@@ -32,8 +32,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupViewPager(ViewPager viewPager){
         SectionsPageAdapter adapter = new SectionsPageAdapter(getSupportFragmentManager());
-        adapter.addFragment(new Fragment1(), "Main");
-        adapter.addFragment(new Fragment1(), "Event");
+        adapter.addFragment(new FragmentMain(), "Main");
+        adapter.addFragment(new FragmentMain(), "Event");
         adapter.addFragment(new Fragment3(), "Future Events");
         viewPager.setAdapter(adapter);
     }
