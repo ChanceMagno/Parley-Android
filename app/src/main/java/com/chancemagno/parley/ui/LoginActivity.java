@@ -30,7 +30,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     @Bind(R.id.loginButton) Button mLoginButton;
     @Bind(R.id.passwordLoginEditText) EditText mPasswordLoginEditText;
-    @Bind(R.id.emailLoginEditText) EditText mEmailLoginEditText;
+    @Bind(R.id.emailEditText) EditText mEmailLoginEditText;
     @Bind(R.id.forgotPasswordTextView) TextView mForgotPasswordTextView;
     @Bind(R.id.registerTextView) TextView mRegisterTextView;
 
@@ -53,6 +53,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         mLoginButton.setOnClickListener(this);
         mRegisterTextView.setOnClickListener(this);
+        mForgotPasswordTextView.setOnClickListener(this);
 
         createAuthProgressDialog();
 
@@ -88,6 +89,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             logInExistingUser();
         } else if (v == mRegisterTextView){
             Intent intent = new Intent(LoginActivity.this, CreateAccountActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+        } else if(v == mForgotPasswordTextView){
+            Intent intent = new Intent(LoginActivity.this, ForgotPasswordActivity.class);
             startActivity(intent);
         }
     }

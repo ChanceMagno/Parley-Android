@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:background="@android:color/white"
         android:hint="Name"
-        android:nextFocusDown="@+id/emailLoginEditText"
+        android:nextFocusDown="@+id/emailEditText"
         android:padding="10dp"
         android:textColor="@android:color/black"
         android:textColorHint="@color/colorPrimaryDark"
