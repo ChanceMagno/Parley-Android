@@ -54,8 +54,16 @@
             app:riv_border_width="3dip"
             app:riv_oval="true"
             app:riv_border_color="@color/colorPrimary"
-            tools:layout_editor_absoluteY="65dp"
-            tools:layout_editor_absoluteX="34dp" />
+            android:layout_marginLeft="8dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="8dp"
+            android:layout_marginRight="8dp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintHorizontal_bias="0.039"
+            app:layout_constraintVertical_bias="0.487" />
 
     </android.support.constraint.ConstraintLayout>
 
@@ -77,6 +85,20 @@
         tools:layout_constraintLeft_creator="1"
         app:layout_constraintLeft_toLeftOf="parent" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="113dp"
+        android:layout_marginTop="38dp"
+        android:text="TextView"
+        app:layout_constraintBottom_toBottomOf="@+id/cardView"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintLeft_toLeftOf="@+id/cardView"
+        app:layout_constraintRight_toRightOf="@+id/cardView"
+        app:layout_constraintTop_toTopOf="@+id/cardView"
+        app:layout_constraintVertical_bias="0.07" />
 
 
 </android.support.constraint.ConstraintLayout>
