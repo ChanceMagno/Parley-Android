@@ -52,12 +52,10 @@
             android:scaleType="center"
             app:riv_corner_radius="30dip"
             app:riv_border_width="3dip"
-            app:riv_oval="false"
+            app:riv_oval="true"
             app:riv_border_color="@color/colorPrimary"
             tools:layout_editor_absoluteY="65dp"
             tools:layout_editor_absoluteX="34dp" />
-            /
-
 
     </android.support.constraint.ConstraintLayout>
 
