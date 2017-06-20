@@ -3,6 +3,7 @@ package com.chancemagno.parley.ui;
 import android.Manifest;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
@@ -25,6 +26,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.makeramen.roundedimageview.RoundedImageView;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
 
 import java.io.ByteArrayOutputStream;
 
@@ -32,15 +36,19 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 
 public class CreateProfileActivity extends AppCompatActivity implements OnClickListener{
-    private StorageReference mStorageRef;
     @Bind(R.id.profileImageView)
-    ImageView mProfileImageView;
+    RoundedImageView mProfileImageView;
     @Bind(R.id.takePicButton)
     Button mtakePicButton;
     public static final int REQUEST_IMAGE_CAPTURE = 111;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     Bitmap imageBitmap;
+    private StorageReference mStorageRef;
+    private StorageReference mProfileImageRef;
+    FirebaseStorage mStorage;
+    String profileImageTitle;
+    Transformation transformation;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,12 +68,18 @@ public class CreateProfileActivity extends AppCompatActivity implements OnClickL
             }
         };
 
+        mStorage = FirebaseStorage.getInstance();
+        mStorageRef = mStorage.getReferenceFromUrl("gs://parley-ca23c.appspot.com/");
+
         mStorageRef = FirebaseStorage.getInstance().getReference();
         mtakePicButton.setOnClickListener(this);
 
-//        checkFilePermissions();
-
-//        addFilePaths();
+//        transformation; = new RoundedTransformationBuilder()
+//                .borderColor(Color.BLACK)
+//                .borderWidthDp(3)
+//                .cornerRadiusDp(30)
+//                .oval(false)
+//                .build();
     }
 
     @Override
@@ -95,29 +109,34 @@ public class CreateProfileActivity extends AppCompatActivity implements OnClickL
 
     private void uploadFile(Bitmap bitmap) {
         FirebaseStorage storage = FirebaseStorage.getInstance();
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        String profileImageTitle = (user.getDisplayName() + ".jpg");
-        StorageReference storageRef = storage.getReferenceFromUrl("gs://parley-ca23c.appspot.com/");
-        StorageReference profileImageRef = storageRef.child("images/" + user.getUid()+ "/" +  profileImageTitle);
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        profileImageTitle = (user.getDisplayName() + ".jpg");
+        mStorageRef = storage.getReferenceFromUrl("gs://parley-ca23c.appspot.com/");
+        mProfileImageRef = mStorageRef.child("images/" + user.getUid()+ "/" +  profileImageTitle);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 20, baos);
         byte[] data = baos.toByteArray();
-        UploadTask uploadTask = profileImageRef.putBytes(data);
+        UploadTask uploadTask = mProfileImageRef.putBytes(data);
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-                Toast.makeText(CreateProfileActivity.this, "epic fail", Toast.LENGTH_LONG);
+                Toast.makeText(CreateProfileActivity.this, "Image upload failed", Toast.LENGTH_LONG).show();
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                Toast.makeText(CreateProfileActivity.this, "success", Toast.LENGTH_LONG);
+                getImageUrl(user.getUid());
             }
         });
-
     }
 
-
-
+    public void getImageUrl(String id){
+        mStorageRef.child("images/" + id + "/" +  profileImageTitle).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                Picasso.with(mProfileImageView.getContext()).load(uri).fit().into(mProfileImageView);
+            }
+        });
+    }
 
 }
