@@ -13,6 +13,8 @@ public class Event {
     ArrayList<String> maybeattending;
     ArrayList<String> notattending;
 
+    Event(){}
+
     public Event(String title, Date dateofevent, Time timeofevent, ArrayList<String> invited, ArrayList<String> attending, ArrayList<String> maybeattending, ArrayList<String> notattending) {
         this.title = title;
         this.dateofevent = dateofevent;
