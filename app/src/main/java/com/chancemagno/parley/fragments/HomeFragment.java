@@ -1,7 +1,9 @@
 package com.chancemagno.parley.fragments;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -12,6 +14,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.chancemagno.parley.R;
+import com.chancemagno.parley.constants.Constants;
+import com.chancemagno.parley.ui.CreateProfileActivity;
 import com.chancemagno.parley.ui.LoginActivity;
 import com.chancemagno.parley.ui.MainActivity;
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,15 +30,24 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     @Bind(R.id.friendsButton) Button mFriendsButton;
     @Bind(R.id.logoutButton) Button mLogoutButton;
 
-    FirebaseAuth mAuth;
-    FirebaseAuth.AuthStateListener mAuthListener;
-    FirebaseUser user;
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
+    private FirebaseUser user;
+    private SharedPreferences mSharedPreference;
+    private SharedPreferences.Editor mEditor;
+    Boolean mProfileStatus;
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.home_fragment, container, false);
-
         ButterKnife.bind(this, view);
 
+        mSharedPreference = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+        if (mSharedPreference.getBoolean(String.valueOf(Constants.PREFERENCES_PROFILE_STATUS), false))
+            mProfileStatus = true;
+        else mProfileStatus = false;
+
+        Log.i("profile status", profileStatus.toString());
 
 
         mProfileButton.setOnClickListener(this);
@@ -65,8 +78,13 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         if(v == mLogoutButton){
             FirebaseAuth.getInstance().signOut();
         } else if (v == mProfileButton){
-            Intent intent = new Intent(getActivity(), LoginActivity.class);
-            startActivity(intent);
+            if(mProfileStatus){
+                Intent intent = new Intent(getActivity(), ProfileActivity.class);
+                startActivity(intent);
+            } else {
+                Intent intent = new Intent(getActivity(), CreateProfileActivity.class)
+            }
+
         }
     }
 
