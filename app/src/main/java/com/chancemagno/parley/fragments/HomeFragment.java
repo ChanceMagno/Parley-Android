@@ -18,6 +18,7 @@ import com.chancemagno.parley.constants.Constants;
 import com.chancemagno.parley.ui.CreateProfileActivity;
 import com.chancemagno.parley.ui.LoginActivity;
 import com.chancemagno.parley.ui.MainActivity;
+import com.chancemagno.parley.ui.ProfileActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -47,9 +48,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
             mProfileStatus = true;
         else mProfileStatus = false;
 
-        Log.i("profile status", profileStatus.toString());
-
-
         mProfileButton.setOnClickListener(this);
         mEventButton.setOnClickListener(this);
         mFriendsButton.setOnClickListener(this);
@@ -68,7 +66,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                 }
             }
         };
-
         return view;
     }
 
@@ -82,9 +79,9 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                 Intent intent = new Intent(getActivity(), ProfileActivity.class);
                 startActivity(intent);
             } else {
-                Intent intent = new Intent(getActivity(), CreateProfileActivity.class)
+                Intent intent = new Intent(getActivity(), CreateProfileActivity.class);
+                startActivity(intent);
             }
-
         }
     }
 
