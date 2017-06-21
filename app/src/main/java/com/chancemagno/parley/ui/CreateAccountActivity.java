@@ -2,6 +2,8 @@ package com.chancemagno.parley.ui;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.chancemagno.parley.R;
+import com.chancemagno.parley.constants.Constants;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -39,12 +42,16 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
     public FirebaseAuth.AuthStateListener mAuthListener;
     private ProgressDialog mAuthProgressDialog;
     private String mName;
+    private SharedPreferences mSharedPreference;
+    private SharedPreferences.Editor mEditor;
 
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_account);
         ButterKnife.bind(this);
+
+        mSharedPreference = PreferenceManager.getDefaultSharedPreferences(this);
+        mEditor = mSharedPreference.edit();
 
         mAuth = FirebaseAuth.getInstance();
         String mName;
@@ -92,6 +99,7 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
                         if(task.isSuccessful()){
                             updateProfile();
                             sendVerificationEmail();
+                            setProfileUpdateStatus();
                         } else {
                             Toast.makeText(CreateAccountActivity.this, "authentication failed", Toast.LENGTH_LONG).show();
                         }
@@ -136,6 +144,10 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
                 }
             }
         };
+    }
+
+    public void setProfileUpdateStatus(){
+        mEditor.putBoolean(String.valueOf(Constants.PREFERENCES_PROFILE_STATUS), false).apply();
     }
 
     private boolean isValidEmail(String email){

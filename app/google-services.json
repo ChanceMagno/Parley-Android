@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "914782797177-iokeb0jc13tuov1s8ubg3u64agq94u3o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.chancemagno.parley",
+            "certificate_hash": "9bfe6f63c52df6d6c83cea26a994707090fc60e5"
+          }
+        },
+        {
           "client_id": "914782797177-0ebj3u8irrd6o20svi3r2rv2g5jqdth0.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
