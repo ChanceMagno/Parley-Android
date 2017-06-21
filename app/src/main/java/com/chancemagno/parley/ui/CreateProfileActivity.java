@@ -2,13 +2,19 @@ package com.chancemagno.parley.ui;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresPermission;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.chancemagno.parley.R;
+import com.chancemagno.parley.constants.Constants;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -35,12 +42,14 @@ import java.io.ByteArrayOutputStream;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
+import static android.content.Intent.ACTION_PICK;
+
 public class CreateProfileActivity extends AppCompatActivity implements OnClickListener{
-    @Bind(R.id.profileImageView)
-    RoundedImageView mProfileImageView;
-    @Bind(R.id.takePicButton)
-    Button mtakePicButton;
+    @Bind(R.id.profileImageView) RoundedImageView mProfileImageView;
+    @Bind(R.id.useCameraFloatingActionButton) FloatingActionButton mUseCameraButton;
+    @Bind(R.id.openGalleryFloatingActionButton) FloatingActionButton mOpenGalleryButton;
     public static final int REQUEST_IMAGE_CAPTURE = 111;
+    public static final int ACTIVITY_SELECT_IMAGE = 1234;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     Bitmap imageBitmap;
@@ -48,7 +57,6 @@ public class CreateProfileActivity extends AppCompatActivity implements OnClickL
     private StorageReference mProfileImageRef;
     FirebaseStorage mStorage;
     String profileImageTitle;
-    Transformation transformation;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,23 +77,20 @@ public class CreateProfileActivity extends AppCompatActivity implements OnClickL
         };
 
         mStorage = FirebaseStorage.getInstance();
-        mStorageRef = mStorage.getReferenceFromUrl("gs://parley-ca23c.appspot.com/");
+        mStorageRef = mStorage.getReferenceFromUrl(Constants.IMAGE_STORAGE_URL);
 
         mStorageRef = FirebaseStorage.getInstance().getReference();
-        mtakePicButton.setOnClickListener(this);
+        mUseCameraButton.setOnClickListener(this);
+        mOpenGalleryButton.setOnClickListener(this);
 
-//        transformation; = new RoundedTransformationBuilder()
-//                .borderColor(Color.BLACK)
-//                .borderWidthDp(3)
-//                .cornerRadiusDp(30)
-//                .oval(false)
-//                .build();
     }
 
     @Override
     public void onClick(View v) {
-        if(v == mtakePicButton){
+        if(v == mUseCameraButton){
             launchCamera();
+        } else if(v == mOpenGalleryButton){
+                checkPermissions();
         }
     }
 
@@ -96,14 +101,31 @@ public class CreateProfileActivity extends AppCompatActivity implements OnClickL
         }
     }
 
+    public void openGallery(){
+        Intent takePictureIntent = new Intent(ACTION_PICK,
+                android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI);
+        startActivityForResult(takePictureIntent, ACTIVITY_SELECT_IMAGE);
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data){
-        if(requestCode == REQUEST_IMAGE_CAPTURE && resultCode ==  CreateProfileActivity.this.RESULT_OK){
+        if(requestCode == REQUEST_IMAGE_CAPTURE  && resultCode ==  CreateProfileActivity.this.RESULT_OK){
             Bundle extras = data.getExtras();
              imageBitmap = (Bitmap) extras.get("data");
             uploadFile(imageBitmap);
-
         }
+       else if (requestCode == ACTIVITY_SELECT_IMAGE){
+            Uri selectedImage = data.getData();
+            String[] filePathColumn = {MediaStore.Images.Media.DATA};
+            Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+            cursor.moveToFirst();
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            String filePath = cursor.getString(columnIndex);
+            cursor.close();
+            imageBitmap = BitmapFactory.decodeFile(filePath);
+            uploadFile(imageBitmap);
+        }
+
     }
 
 
@@ -137,6 +159,26 @@ public class CreateProfileActivity extends AppCompatActivity implements OnClickL
                 Picasso.with(mProfileImageView.getContext()).load(uri).fit().into(mProfileImageView);
             }
         });
+    }
+
+    public void checkPermissions(){
+        if (ContextCompat.checkSelfPermission(CreateProfileActivity.this,
+                Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(CreateProfileActivity.this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
+
+            } else {
+                ActivityCompat.requestPermissions(CreateProfileActivity.this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        ACTIVITY_SELECT_IMAGE);
+            }
+            if(ContextCompat.checkSelfPermission(CreateProfileActivity.this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED){
+            }
+        } else{openGallery();}
     }
 
 }
