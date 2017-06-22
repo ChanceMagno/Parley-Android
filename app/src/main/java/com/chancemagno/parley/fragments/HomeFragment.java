@@ -7,7 +7,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
+import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,10 +15,11 @@ import android.widget.Button;
 
 import com.chancemagno.parley.R;
 import com.chancemagno.parley.constants.Constants;
+import com.chancemagno.parley.ui.CreateEventActivity;
 import com.chancemagno.parley.ui.CreateProfileActivity;
 import com.chancemagno.parley.ui.LoginActivity;
-import com.chancemagno.parley.ui.MainActivity;
 import com.chancemagno.parley.ui.ProfileActivity;
+import com.chancemagno.parley.ui.SearchForFriendsActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -27,30 +28,24 @@ import butterknife.ButterKnife;
 
 public class HomeFragment extends Fragment implements View.OnClickListener {
     @Bind(R.id.profileButton) Button mProfileButton;
-    @Bind(R.id.eventButton) Button mEventButton;
-    @Bind(R.id.friendsButton) Button mFriendsButton;
+    @Bind(R.id.createEventButton) Button mCreateEventButton;
+    @Bind(R.id.addFriendsButton) Button mSearchForFriendsButton;
     @Bind(R.id.logoutButton) Button mLogoutButton;
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseUser user;
-    private SharedPreferences mSharedPreference;
-    private SharedPreferences.Editor mEditor;
-    Boolean mProfileStatus;
+    private ViewPager mViewPager;
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.home_fragment, container, false);
         ButterKnife.bind(this, view);
 
-        mSharedPreference = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
-        if (mSharedPreference.getBoolean(String.valueOf(Constants.PREFERENCES_PROFILE_STATUS), false))
-            mProfileStatus = true;
-        else mProfileStatus = false;
 
         mProfileButton.setOnClickListener(this);
-        mEventButton.setOnClickListener(this);
-        mFriendsButton.setOnClickListener(this);
+        mCreateEventButton.setOnClickListener(this);
+        mSearchForFriendsButton.setOnClickListener(this);
         mLogoutButton.setOnClickListener(this);
 
 
@@ -69,21 +64,23 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         return view;
     }
 
-
     @Override
     public void onClick(View v) {
         if(v == mLogoutButton){
             FirebaseAuth.getInstance().signOut();
         } else if (v == mProfileButton){
-            if(mProfileStatus){
-                Intent intent = new Intent(getActivity(), ProfileActivity.class);
-                startActivity(intent);
-            } else {
-                Intent intent = new Intent(getActivity(), CreateProfileActivity.class);
-                startActivity(intent);
+            Intent intent = new Intent(getActivity(), ProfileActivity.class);
+            startActivity(intent);
+        } else if (v == mCreateEventButton){
+            Intent intent2 = new Intent(getActivity(), CreateEventActivity.class);
+            startActivity(intent2);
+        } else if(v == mSearchForFriendsButton){
+
             }
+            Intent intent1 = new Intent(getActivity(), SearchForFriendsActivity.class);
+            startActivity(intent1);
         }
-    }
+
 
     @Override
     public void onStart(){

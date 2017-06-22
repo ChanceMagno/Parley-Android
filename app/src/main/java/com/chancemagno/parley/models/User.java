@@ -1,13 +1,15 @@
 package com.chancemagno.parley.models;
 
 
+import com.google.firebase.database.DataSnapshot;
+
 public class User {
     String firstName;
     String lastName;
     String email;
     String photoURL;
 
-    User(){}
+     User(){}
 
     public User(String firstName, String lastName, String email, String photoURL) {
         this.firstName = firstName;
