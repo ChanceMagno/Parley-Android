@@ -3,6 +3,7 @@ package com.chancemagno.parley.ui;
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -10,6 +11,7 @@ import android.graphics.BitmapFactory;
 
 import android.net.Uri;
 
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 
@@ -19,6 +21,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 
@@ -67,6 +70,9 @@ public class CreateProfileActivity extends AppCompatActivity implements OnClickL
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseUser user;
 
+    private SharedPreferences mSharedPreference;
+    private SharedPreferences.Editor mEditor;
+
     private StorageReference mStorageRef;
     private StorageReference mProfileImageRef;
     FirebaseStorage mStorage;
@@ -94,8 +100,6 @@ public class CreateProfileActivity extends AppCompatActivity implements OnClickL
         };
 
         user = FirebaseAuth.getInstance().getCurrentUser();
-
-
 
         mStorage = FirebaseStorage.getInstance();
         mStorageRef = mStorage.getReferenceFromUrl(Constants.IMAGE_STORAGE_URL);
@@ -205,15 +209,13 @@ public class CreateProfileActivity extends AppCompatActivity implements OnClickL
         if(!validFirstName || !validLastName) return;
 
         formatName();
-        DatabaseReference saveUserProfileReference = FirebaseDatabase.getInstance().getReference("users").child(user.getUid()).child("profile");
+        final DatabaseReference saveUserProfileReference = FirebaseDatabase.getInstance().getReference("users").child(user.getUid()).child("profile");
 
         User newUser = new User(firstName, lastName, user.getEmail(), uri);
         saveUserProfileReference.setValue(newUser).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                mSavingProgressDialog.dismiss();
-                Intent intent = new Intent(CreateProfileActivity.this, MainActivity.class);
-                startActivity(intent);
+                setProfileUpdateStatus();
             }
         });
     }
@@ -266,6 +268,20 @@ public class CreateProfileActivity extends AppCompatActivity implements OnClickL
         mSavingProgressDialog.setTitle("Uploading your profile");
         mSavingProgressDialog.setMessage(String.format("Thanks for registering %s! ", user.getDisplayName()));
         mSavingProgressDialog.setCancelable(false);
+    }
+
+
+    public void setProfileUpdateStatus(){
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(user.getUid()).child("profileStatus");
+        ref.setValue("true").addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                mSavingProgressDialog.dismiss();
+                Intent intent = new Intent(CreateProfileActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
 

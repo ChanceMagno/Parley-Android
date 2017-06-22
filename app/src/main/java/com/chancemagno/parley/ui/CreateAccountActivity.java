@@ -23,6 +23,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -42,24 +44,15 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
     public FirebaseAuth.AuthStateListener mAuthListener;
     private ProgressDialog mAuthProgressDialog;
     private String mName;
-    private SharedPreferences mSharedPreference;
-    private SharedPreferences.Editor mEditor;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_account);
         ButterKnife.bind(this);
-
-        mSharedPreference = PreferenceManager.getDefaultSharedPreferences(this);
-        mEditor = mSharedPreference.edit();
-
+        createAuthStateListener();
         mAuth = FirebaseAuth.getInstance();
-        String mName;
         mLoginTextView.setOnClickListener(this);
         mCreateUserButton.setOnClickListener(this);
-
-        createAuthStateListener();
-
 
     }
 
@@ -125,6 +118,7 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
 
     public void updateProfile(){
         FirebaseUser user = mAuth.getCurrentUser();
+        formatName();
         UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder().setDisplayName(mName).build();
         user.updateProfile(profileUpdate);
     }
@@ -147,7 +141,14 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
     }
 
     public void setProfileUpdateStatus(){
-        mEditor.putBoolean(String.valueOf(Constants.PREFERENCES_PROFILE_STATUS), false).apply();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(user.getUid()).child("profileStatus");
+        ref.setValue("false").addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+
+            }
+        });
     }
 
     private boolean isValidEmail(String email){
@@ -183,6 +184,11 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
         mAuthProgressDialog.setTitle("Creating your account");
         mAuthProgressDialog.setMessage(String.format("Thanks for registering %s!", mName));
         mAuthProgressDialog.setCancelable(false);
+    }
+
+    public void  formatName(){
+        mName = mName.toLowerCase();
+        mName = mName.substring(0, 1).toUpperCase() + mName.substring(1);
     }
 
 
