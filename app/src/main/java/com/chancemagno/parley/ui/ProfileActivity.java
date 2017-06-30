@@ -42,16 +42,17 @@ public class ProfileActivity extends AppCompatActivity {
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = mAuth.getCurrentUser();
-                if(user == null){
-                    Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                } else {}
+            FirebaseUser user = mAuth.getCurrentUser();
+            if(user == null){
+                Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+            }
             }
         };
 
         getUserInfoFromDatabase();
+
     }
 
     public void getUserInfoFromDatabase(){
@@ -60,8 +61,9 @@ public class ProfileActivity extends AppCompatActivity {
         userProfileRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.i("HERE", "Here");
               userProfile = dataSnapshot.getValue(User.class);
-              setProfileInfo();
+                setProfileInfo();
             }
 
             @Override
@@ -72,6 +74,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     public void setProfileInfo(){
+        Log.i("SETPROFILE", "Here");
         mNameTextView.setText(String.format("%s %s", userProfile.getFirstName(), userProfile.getLastName()));
         Picasso.with(mProfileImageView.getContext()).load(userProfile.getPhotoURL()).fit().centerCrop().into(mProfileImageView);
     }

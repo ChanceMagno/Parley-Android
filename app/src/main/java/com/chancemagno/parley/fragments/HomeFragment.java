@@ -41,8 +41,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         final View view = inflater.inflate(R.layout.home_fragment, container, false);
         ButterKnife.bind(this, view);
 
-
-
         mProfileButton.setOnClickListener(this);
         mCreateEventButton.setOnClickListener(this);
         mSearchForFriendsButton.setOnClickListener(this);
@@ -75,10 +73,10 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
             Intent intent2 = new Intent(getActivity(), CreateEventActivity.class);
             startActivity(intent2);
         } else if(v == mSearchForFriendsButton){
-
-            }
             Intent intent1 = new Intent(getActivity(), SearchForFriendsActivity.class);
             startActivity(intent1);
+            }
+
         }
 
 
