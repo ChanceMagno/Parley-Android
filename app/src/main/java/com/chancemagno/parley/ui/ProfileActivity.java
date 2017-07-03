@@ -52,7 +52,6 @@ public class ProfileActivity extends AppCompatActivity {
         };
 
         getUserInfoFromDatabase();
-
     }
 
     public void getUserInfoFromDatabase(){
@@ -61,7 +60,6 @@ public class ProfileActivity extends AppCompatActivity {
         userProfileRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.i("HERE", "Here");
               userProfile = dataSnapshot.getValue(User.class);
                 setProfileInfo();
             }
@@ -74,8 +72,21 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     public void setProfileInfo(){
-        Log.i("SETPROFILE", "Here");
         mNameTextView.setText(String.format("%s %s", userProfile.getFirstName(), userProfile.getLastName()));
         Picasso.with(mProfileImageView.getContext()).load(userProfile.getPhotoURL()).fit().centerCrop().into(mProfileImageView);
+    }
+
+    @Override
+    public void onStart(){
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
+    }
+
+    @Override
+    public void onStop(){
+        super.onStop();
+        if(mAuthListener != null){
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
     }
 }

@@ -76,7 +76,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
             Intent intent1 = new Intent(getActivity(), SearchForFriendsActivity.class);
             startActivity(intent1);
             }
-
         }
 
 

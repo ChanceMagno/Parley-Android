@@ -6,14 +6,18 @@ import com.google.firebase.database.DataSnapshot;
 public class User {
     String firstName;
     String lastName;
+    String fullName;
     String email;
     String photoURL;
 
      User(){}
 
+
+
     public User(String firstName, String lastName, String email, String photoURL) {
         this.firstName = firstName;
         this.lastName = lastName;
+        this.fullName = String.format("%s %s", firstName, lastName);
         this.email = email;
         this.photoURL = photoURL;
     }
@@ -31,6 +35,8 @@ public class User {
     public String getPhotoURL() {
         return photoURL;
     }
+
+    public String getFullName() {return fullName;}
 
 
 }
