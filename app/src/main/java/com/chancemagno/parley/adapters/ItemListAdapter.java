@@ -1,6 +1,8 @@
 package com.chancemagno.parley.adapters;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +13,12 @@ import android.widget.Toast;
 
 import com.chancemagno.parley.R;
 import com.chancemagno.parley.models.User;
+import com.chancemagno.parley.ui.SearchForFriendsActivity;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -18,13 +26,17 @@ import java.util.ArrayList;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
+import static com.chancemagno.parley.ui.SearchForFriendsActivity.*;
+
 public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ItemViewHolder>{
     private ArrayList<User> mUsers = new ArrayList<>();
+    private ArrayList<String> mKeys = new ArrayList<>();
     private Context mContext;
 
-    public ItemListAdapter(Context context, ArrayList<User> users) {
+    public ItemListAdapter(Context context, ArrayList<User> users, ArrayList<String> keys) {
         mContext = context;
         mUsers = users;
+        mKeys = keys;
     }
 
 
@@ -52,6 +64,7 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ItemVi
         @Bind(R.id.friendInviteTextView) TextView mFriendInviteTextView;
         @Bind(R.id.eventInviteTextView) TextView mEventInviteTextView;
         @Bind(R.id.profileImageView) ImageView mProfileImageView;
+        @Bind(R.id.addFriendFloatingActionButton) FloatingActionButton mAddFriendButton;
 
 
 
@@ -68,13 +81,38 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ItemVi
         public void bindItem(User user) {
         mNameTextView.setText(user.getFullName());
             Picasso.with(mProfileImageView.getContext()).load(user.getPhotoURL()).fit().centerCrop().into(mProfileImageView);
+            mAddFriendButton.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View v){
             int itemPosition = getLayoutPosition();
-            Toast.makeText(mContext, mUsers.get(itemPosition).getFirstName(), Toast.LENGTH_LONG).show();
+            if(v == mAddFriendButton){
+                sendFriendRequest(itemPosition);
+
+            }
 
         }
+
+        public void sendFriendRequest(final int itemPosition){
+         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(mKeys.get(itemPosition)).child("friendRequests");
+            ref.push().setValue(FirebaseAuth.getInstance().getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    updateUsersFriendRequestList(itemPosition);
+                }
+            });
+        }
+
+        public void updateUsersFriendRequestList(final int itemPosition){
+            DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("sentFriendRequests");
+            ref.push().setValue(mKeys.get(itemPosition)).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    Toast.makeText(mContext, String.format("Friend Request sent to %s", mUsers.get(itemPosition).getFullName()), Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+
     }
 }

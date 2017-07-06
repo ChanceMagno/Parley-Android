@@ -1,5 +1,6 @@
 package com.chancemagno.parley.ui;
 
+import android.content.Context;
 import android.content.Intent;
 
 import android.support.annotation.NonNull;
@@ -11,6 +12,8 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.chancemagno.parley.R;
 import com.chancemagno.parley.adapters.ItemListAdapter;
 import com.chancemagno.parley.models.User;
@@ -36,8 +39,12 @@ public class SearchForFriendsActivity extends AppCompatActivity {
     String searchParameter;
     private ItemListAdapter mAdapter;
     ArrayList<User> users;
-    @Bind(R.id.searchEditText) TextView mSearchEditText;
-    @Bind(R.id.recyclerView) RecyclerView mRecyclerView;
+    ArrayList<String> keys;
+    @Bind(R.id.searchEditText)
+    TextView mSearchEditText;
+    @Bind(R.id.recyclerView)
+    RecyclerView mRecyclerView;
+    private TextWatcher textWatcher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +57,7 @@ public class SearchForFriendsActivity extends AppCompatActivity {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = mAuth.getCurrentUser();
-                if(user == null){
+                if (user == null) {
                     Intent intent = new Intent(SearchForFriendsActivity.this, LoginActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
@@ -61,8 +68,8 @@ public class SearchForFriendsActivity extends AppCompatActivity {
         createTextViewChangeListener();
     }
 
-    public void createTextViewChangeListener(){
-        mSearchEditText.addTextChangedListener(new TextWatcher() {
+    public void createTextViewChangeListener() {
+        mSearchEditText.addTextChangedListener(textWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -71,7 +78,8 @@ public class SearchForFriendsActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 users = new ArrayList<User>();
-                mAdapter = new ItemListAdapter(getApplicationContext(), users);
+                keys = new ArrayList<String>();
+                mAdapter = new ItemListAdapter(getApplicationContext(), users, keys);
                 mRecyclerView.setAdapter(mAdapter);
                 RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(SearchForFriendsActivity.this);
                 mRecyclerView.setLayoutManager(layoutManager);
@@ -82,7 +90,7 @@ public class SearchForFriendsActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {
                 searchQuery = formatSearchQuery().trim();
-                if(searchQuery.contains(" ")){
+                if (searchQuery.contains(" ")) {
                     searchParameter = "profile/fullName";
                     searchUsers();
                 } else {
@@ -94,43 +102,58 @@ public class SearchForFriendsActivity extends AppCompatActivity {
         });
     }
 
-   public String formatSearchQuery(){
-           searchQuery = WordUtils.capitalizeFully(mSearchEditText.getText().toString());
-            return searchQuery;
+    public String formatSearchQuery() {
+        searchQuery = WordUtils.capitalizeFully(mSearchEditText.getText().toString());
+        return searchQuery;
     }
 
-    public void searchUsers(){
-        users = new ArrayList<>();
-      Query ref = FirebaseDatabase.getInstance().getReference().child("users").orderByChild(searchParameter).equalTo(searchQuery);
+    public void searchUsers() {
+        Query ref = FirebaseDatabase.getInstance().getReference().child("users").orderByChild(searchParameter).equalTo(searchQuery);
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-
-                for (DataSnapshot messageSnapshot: dataSnapshot.getChildren()) {
+                users = new ArrayList<>();
+                keys = new ArrayList<String>();
+                for (DataSnapshot messageSnapshot : dataSnapshot.getChildren()) {
+                    keys.add(messageSnapshot.getKey());
                     String firstName = (String) messageSnapshot.child("profile").child("firstName").getValue();
                     String lastName = (String) messageSnapshot.child("profile").child("lastName").getValue();
                     String email = (String) messageSnapshot.child("profile").child("email").getValue();
                     String photoURL = (String) messageSnapshot.child("profile").child("photoURL").getValue();
                     User newUser = new User(firstName, lastName, email, photoURL);
                     users.add(newUser);
-
-                    mAdapter = new ItemListAdapter(getApplicationContext(), users);
-                    mRecyclerView.setAdapter(mAdapter);
-                    RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(SearchForFriendsActivity.this);
-                    mRecyclerView.setLayoutManager(layoutManager);
-                    mRecyclerView.setHasFixedSize(true);
-
-
                 }
-
-
-
-
+                mAdapter = new ItemListAdapter(getApplicationContext(), users, keys);
+                mRecyclerView.setAdapter(mAdapter);
+                RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(SearchForFriendsActivity.this);
+                mRecyclerView.setLayoutManager(layoutManager);
+                mRecyclerView.setHasFixedSize(true);
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
             }
         });
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
+        createTextViewChangeListener();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (textWatcher != null) {
+            mSearchEditText.removeTextChangedListener(textWatcher);
+        }
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
+
+        }
+    }
+
 }
