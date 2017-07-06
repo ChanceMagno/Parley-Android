@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.chancemagno.parley.R;
 import com.chancemagno.parley.models.User;
@@ -72,6 +73,7 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ItemVi
         @Override
         public void onClick(View v){
             int itemPosition = getLayoutPosition();
+            Toast.makeText(mContext, mUsers.get(itemPosition).getFirstName(), Toast.LENGTH_LONG).show();
 
         }
     }

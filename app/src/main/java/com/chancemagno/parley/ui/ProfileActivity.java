@@ -72,7 +72,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     public void setProfileInfo(){
-        mNameTextView.setText(String.format("%s %s", userProfile.getFirstName(), userProfile.getLastName()));
+        mNameTextView.setText(userProfile.getFullName());
         Picasso.with(mProfileImageView.getContext()).load(userProfile.getPhotoURL()).fit().centerCrop().into(mProfileImageView);
     }
 
