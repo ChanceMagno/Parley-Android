@@ -10,7 +10,7 @@ public class User {
     String email;
     String photoURL;
 
-     User(){}
+    public User(Object profile){}
 
 
 

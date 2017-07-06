@@ -70,6 +70,12 @@ public class SearchForFriendsActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                users = new ArrayList<User>();
+                mAdapter = new ItemListAdapter(getApplicationContext(), users);
+                mRecyclerView.setAdapter(mAdapter);
+                RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(SearchForFriendsActivity.this);
+                mRecyclerView.setLayoutManager(layoutManager);
+                mRecyclerView.setHasFixedSize(true);
 
             }
 
@@ -94,19 +100,31 @@ public class SearchForFriendsActivity extends AppCompatActivity {
     }
 
     public void searchUsers(){
-         users = new ArrayList<>();
+        users = new ArrayList<>();
       Query ref = FirebaseDatabase.getInstance().getReference().child("users").orderByChild(searchParameter).equalTo(searchQuery);
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.i(dataSnapshot.child("users").child(getKey().), "key");
-                Log.i("user", String.valueOf(dataSnapshot.child("U5KtMIyyt6Vhurp0iP7vj9bOZjb2").child("profile").getValue()));
 
-//                mAdapter = new ItemListAdapter(getApplicationContext(), users);
-//                mRecyclerView.setAdapter(mAdapter);
-//                RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(SearchForFriendsActivity.this);
-//                mRecyclerView.setLayoutManager(layoutManager);
-//                mRecyclerView.setHasFixedSize(true);
+                for (DataSnapshot messageSnapshot: dataSnapshot.getChildren()) {
+                    String firstName = (String) messageSnapshot.child("profile").child("firstName").getValue();
+                    String lastName = (String) messageSnapshot.child("profile").child("lastName").getValue();
+                    String email = (String) messageSnapshot.child("profile").child("email").getValue();
+                    String photoURL = (String) messageSnapshot.child("profile").child("photoURL").getValue();
+                    User newUser = new User(firstName, lastName, email, photoURL);
+                    users.add(newUser);
+
+                    mAdapter = new ItemListAdapter(getApplicationContext(), users);
+                    mRecyclerView.setAdapter(mAdapter);
+                    RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(SearchForFriendsActivity.this);
+                    mRecyclerView.setLayoutManager(layoutManager);
+                    mRecyclerView.setHasFixedSize(true);
+
+
+                }
+
+
+
 
             }
             @Override
