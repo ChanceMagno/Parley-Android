@@ -6,10 +6,12 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.chancemagno.parley.R;
+import com.chancemagno.parley.models.FriendRequest;
 import com.chancemagno.parley.models.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -28,7 +30,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class ProfileActivity extends AppCompatActivity {
+public class ProfileActivity extends AppCompatActivity implements View.OnClickListener{
     @Bind(R.id.nameTextView) TextView mNameTextView;
     @Bind(R.id.friendInviteTextView) TextView mFriendInviteTextView;
     @Bind(R.id.eventInviteTextView) TextView mEventInviteTextView;
@@ -36,9 +38,12 @@ public class ProfileActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    public User userProfile;
-    public ArrayList<String> friendRequestList;
-    FirebaseUser mUser;
+    private User userProfile;
+    private ArrayList<FriendRequest> mFriendRequests;
+    private FirebaseUser mUser;
+    private ValueEventListener mProfileInfoValueEventListener;
+    private ValueEventListener mFriendRequestValueEventListener;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,13 +64,15 @@ public class ProfileActivity extends AppCompatActivity {
             }
         };
 
+        mFriendInviteTextView.setOnClickListener(this);
+
         getUserInfoFromDatabase();
     }
 
     public void getUserInfoFromDatabase(){
         mUser = FirebaseAuth.getInstance().getCurrentUser();
         final DatabaseReference userProfileRef = FirebaseDatabase.getInstance().getReference("users").child(mUser.getUid()).child("profile");
-        userProfileRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        userProfileRef.addListenerForSingleValueEvent(mProfileInfoValueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
               userProfile = dataSnapshot.getValue(User.class);
@@ -82,12 +89,16 @@ public class ProfileActivity extends AppCompatActivity {
 
     public void checkForFriendRequests(){
         final DatabaseReference friendRequestRef = FirebaseDatabase.getInstance().getReference("users").child(mUser.getUid()).child("friendRequests");
-        friendRequestRef.addValueEventListener(new ValueEventListener() {
+        friendRequestRef.addValueEventListener(mFriendRequestValueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-
+                mFriendRequests = new ArrayList<FriendRequest>();
+                for (DataSnapshot messageSnapshot : dataSnapshot.getChildren()) {
+                    FriendRequest newFriendRequest = new FriendRequest(String.valueOf(messageSnapshot.getValue()));
+                    mFriendRequests.add(newFriendRequest);
+                }
+                mFriendInviteTextView.setText(String.valueOf(mFriendRequests.size()));
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
@@ -98,12 +109,14 @@ public class ProfileActivity extends AppCompatActivity {
     public void setProfileInfo(){
         mNameTextView.setText(userProfile.getFullName());
         Picasso.with(mProfileImageView.getContext()).load(userProfile.getPhotoURL()).fit().centerCrop().into(mProfileImageView);
+
     }
 
     @Override
     public void onStart(){
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
+        setProfileInfo();
     }
 
     @Override
@@ -111,6 +124,13 @@ public class ProfileActivity extends AppCompatActivity {
         super.onStop();
         if(mAuthListener != null){
             mAuth.removeAuthStateListener(mAuthListener);
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+        if (view == mFriendInviteTextView){
+
         }
     }
 }
