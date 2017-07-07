@@ -32,11 +32,14 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ItemVi
     private ArrayList<User> mUsers = new ArrayList<>();
     private ArrayList<String> mKeys = new ArrayList<>();
     private Context mContext;
+    String loggedInUser;
 
     public ItemListAdapter(Context context, ArrayList<User> users, ArrayList<String> keys) {
         mContext = context;
         mUsers = users;
         mKeys = keys;
+
+       loggedInUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
 
 
@@ -89,14 +92,13 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ItemVi
             int itemPosition = getLayoutPosition();
             if(v == mAddFriendButton){
                 sendFriendRequest(itemPosition);
-
             }
 
         }
 
         public void sendFriendRequest(final int itemPosition){
          DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(mKeys.get(itemPosition)).child("friendRequests");
-            ref.push().setValue(FirebaseAuth.getInstance().getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            ref.push().setValue(loggedInUser).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     updateUsersFriendRequestList(itemPosition);
@@ -105,7 +107,7 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ItemVi
         }
 
         public void updateUsersFriendRequestList(final int itemPosition){
-            DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("sentFriendRequests");
+            DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(loggedInUser).child("sentFriendRequests");
             ref.push().setValue(mKeys.get(itemPosition)).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
