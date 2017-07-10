@@ -1,16 +1,14 @@
 package com.chancemagno.parley.ui;
-
-import android.content.ClipData;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.chancemagno.parley.R;
+import com.chancemagno.parley.fragments.FriendRequestListDialogFragment;
 import com.chancemagno.parley.models.FriendRequest;
 import com.chancemagno.parley.models.User;
 import com.google.firebase.auth.FirebaseAuth;
@@ -19,18 +17,16 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class ProfileActivity extends AppCompatActivity implements View.OnClickListener{
+public class ProfileActivity extends AppCompatActivity implements View.OnClickListener, FriendRequestListDialogFragment.Listener{
     @Bind(R.id.nameTextView) TextView mNameTextView;
     @Bind(R.id.friendInviteTextView) TextView mFriendInviteTextView;
     @Bind(R.id.eventInviteTextView) TextView mEventInviteTextView;
@@ -75,16 +71,19 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         userProfileRef.addListenerForSingleValueEvent(mProfileInfoValueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-              userProfile = dataSnapshot.getValue(User.class);
+
+                userProfile =  dataSnapshot.getValue(User.class);
                 setProfileInfo();
-                checkForFriendRequests();
+
             }
+
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
             }
         });
+
     }
 
     public void checkForFriendRequests(){
@@ -98,6 +97,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                     mFriendRequests.add(newFriendRequest);
                 }
                 mFriendInviteTextView.setText(String.valueOf(mFriendRequests.size()));
+
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -109,14 +109,13 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     public void setProfileInfo(){
         mNameTextView.setText(userProfile.getFullName());
         Picasso.with(mProfileImageView.getContext()).load(userProfile.getPhotoURL()).fit().centerCrop().into(mProfileImageView);
-
+        checkForFriendRequests();
     }
 
     @Override
     public void onStart(){
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
-        setProfileInfo();
     }
 
     @Override
@@ -130,7 +129,12 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public void onClick(View view) {
         if (view == mFriendInviteTextView){
-
+            FriendRequestListDialogFragment.newInstance(30).show(getSupportFragmentManager(), "dialog");
         }
+    }
+
+    @Override
+    public void onFriendRequestClicked(int position) {
+
     }
 }
